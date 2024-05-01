@@ -3,8 +3,8 @@ import numpy as np
 
 y = 70
 
-# img = cv2.imread("WeldGapImages/Set 3/image0307.jpg")
-img = cv2.imread("WeldGapImages/Set 2/image0200.jpg")
+img = cv2.imread("WeldGapImages/Set 3/image0307.jpg")
+# img = cv2.imread("WeldGapImages/Set 2/image0200.jpg")
 # img = cv2.imread("WeldGapImages/Set 1/image0001.jpg")
 save_file = r'WeldGapImages/ProcessedSet1/image0001.jpg'
 gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -42,6 +42,11 @@ if(len(x_coordinates) > 0):
     end_point_2 = (img.shape[1], y)
 
     cv2.line(img, start_point_2, end_point_2, color, thickness)
+
+    start_point_3 = (x_coordinate, y)
+    end_point_3 = (x_coordinate, y)
+
+    cv2.line(img, start_point_3, end_point_3, (0,95,255), thickness)
 
 
 # Saving the image
