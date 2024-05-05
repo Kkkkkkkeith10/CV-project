@@ -4,10 +4,11 @@ import glob
 import os
 
 
-folderDir = "WeldGapImages/Set 1/"
+folderDir = "WeldGapImages/Set 3/"
 file_extension = "*.jpg"
 
-processedDir = "Processed/Set 1/"
+processedDir = "Processed/Set 3/"
+imterimDir = "Interim/Set 3/"
 
 png_files = glob.glob(os.path.join(folderDir, file_extension))
 png_files = [path.replace("\\", "/") for path in png_files]
@@ -20,14 +21,27 @@ for file in png_files:
 
     img = cv2.imread(file)
     save_file = os.path.join(processedDir, os.path.basename(file))
+    imterim_file = os.path.join(imterimDir, os.path.basename(file))
     gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 1)
+    blurred_image = cv2.GaussianBlur(gray_image, (15, 15), 1)
     # cv2.imshow(save_file,img)
     # Setting parameter values
-    t_lower = 30 # Lower Threshold
+    t_lower = 240 # Lower Threshold
     t_upper = 255 # Upper threshold
     # Applying the Canny Edge filter
-    edge = cv2.Canny(blurred_image, t_lower, t_upper)
+    # edge = cv2.Canny(blurred_image, t_lower, t_upper)
+    grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+    grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+    afterSobel = cv2.magnitude(grad_x, grad_y)
+    afterSobel_uint8 = cv2.convertScaleAbs(afterSobel)
+    afterSobel_uint8_blurred = cv2.GaussianBlur(afterSobel_uint8, (35, 35), 1)
+
+
+    _, edges_thresh = cv2.threshold(afterSobel_uint8_blurred, 120, 255, cv2.THRESH_BINARY)
+    kernel = np.ones((3, 3), np.uint8)
+    edges_dilated = cv2.dilate(edges_thresh, kernel, iterations=1)
+    edge = cv2.erode(edges_dilated, kernel, iterations=1)
+
 
     row_of_pixels = edge[y, :]
     x_coordinates = np.where(row_of_pixels >= 120)[0]
@@ -69,6 +83,7 @@ for file in png_files:
 
     # Saving the image
     cv2.imwrite(save_file, img)
+    cv2.imwrite(imterim_file, edge)
     # cv2.imshow('Edge', edge)
     # cv2.imshow("result", img)
     cv2.waitKey(0)
