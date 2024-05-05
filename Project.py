@@ -4,11 +4,11 @@ import glob
 import os
 
 
-folderDir = "WeldGapImages/Set 3/"
+folderDir = "WeldGapImages/Set 1/"
 file_extension = "*.jpg"
 
-processedDir = "Processed/Set 3/"
-imterimDir = "Interim/Set 3/"
+processedDir = "Processed/Set 1/"
+imterimDir = "Interim/Set 1/"
 
 png_files = glob.glob(os.path.join(folderDir, file_extension))
 png_files = [path.replace("\\", "/") for path in png_files]
@@ -24,12 +24,15 @@ for file in png_files:
     imterim_file = os.path.join(imterimDir, os.path.basename(file))
     gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred_image = cv2.GaussianBlur(gray_image, (15, 15), 1)
+
+    
+    
     # cv2.imshow(save_file,img)
     # Setting parameter values
     t_lower = 240 # Lower Threshold
     t_upper = 255 # Upper threshold
 
-    
+
     # Applying the Canny Edge filter
     # edge = cv2.Canny(blurred_image, t_lower, t_upper)
 
@@ -41,7 +44,7 @@ for file in png_files:
     afterSobel_uint8_blurred = cv2.GaussianBlur(afterSobel_uint8, (35, 35), 1)
 
     #use edge enhancement method
-    _, edges_thresh = cv2.threshold(afterSobel_uint8_blurred, 120, 255, cv2.THRESH_BINARY)
+    _, edges_thresh = cv2.threshold(afterSobel_uint8_blurred, 125, 255, cv2.THRESH_BINARY)
     kernel = np.ones((3, 3), np.uint8)
     edges_dilated = cv2.dilate(edges_thresh, kernel, iterations=1)
     edge = cv2.erode(edges_dilated, kernel, iterations=1)
@@ -55,6 +58,13 @@ for file in png_files:
 
 
     if(len(x_coordinates) > 0):
+
+        if x_coordinates[-1] - x_coordinates[0] > 11:
+            valid = 0
+            print(x_coordinates[-1] - x_coordinates[0])
+        else:
+            valid = 1
+
         x_coordinate = int(np.mean(x_coordinates))
         print(x_coordinate)
         thickness = 5
@@ -77,7 +87,7 @@ for file in png_files:
 
         cv2.line(img, start_point_3, end_point_3, (0,95,255), thickness)
 
-        WeldGapData.append([os.path.basename(file), int(np.mean(x_coordinates)), 1])
+        WeldGapData.append([os.path.basename(file), int(np.mean(x_coordinates)), valid])
     else:
         WeldGapData.append([os.path.basename(file), -1, 0])
 
