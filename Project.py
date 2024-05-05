@@ -28,15 +28,19 @@ for file in png_files:
     # Setting parameter values
     t_lower = 240 # Lower Threshold
     t_upper = 255 # Upper threshold
+
+    
     # Applying the Canny Edge filter
     # edge = cv2.Canny(blurred_image, t_lower, t_upper)
+
+    #apply sobel filter
     grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
     grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
     afterSobel = cv2.magnitude(grad_x, grad_y)
     afterSobel_uint8 = cv2.convertScaleAbs(afterSobel)
     afterSobel_uint8_blurred = cv2.GaussianBlur(afterSobel_uint8, (35, 35), 1)
 
-
+    #use edge enhancement method
     _, edges_thresh = cv2.threshold(afterSobel_uint8_blurred, 120, 255, cv2.THRESH_BINARY)
     kernel = np.ones((3, 3), np.uint8)
     edges_dilated = cv2.dilate(edges_thresh, kernel, iterations=1)
