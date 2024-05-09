@@ -64,7 +64,7 @@ for file in png_files:
     loop = True
 
     while loop:
-        if(len(x_coordinates) > 6):
+        if(len(x_coordinates) > 2):
             edge = cv2.erode(edge, kernel, iterations=1)
             row_of_pixels = edge[y, :]
             x_coordinates = np.where(row_of_pixels >= 120)[0]
