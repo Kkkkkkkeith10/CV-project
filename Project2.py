@@ -20,11 +20,13 @@ for file in png_files:
     y = 70
 
     img = cv2.imread(file)
+    y1, x1 = img.shape[:2]
+    img = img[0:140, 850:1150]
     save_file = os.path.join(processedDir, os.path.basename(file))
     imterim_file = os.path.join(imterimDir, os.path.basename(file))
     gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #kernel2 = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
-    #gray_image = cv2.filter2D(gray_image, -1, kernel2)
+    kernel2 = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+    gray_image = cv2.filter2D(gray_image, -1, kernel2)
     blurred_image = cv2.GaussianBlur(gray_image, (15, 15), 1)
 
     
@@ -44,6 +46,7 @@ for file in png_files:
     afterSobel = cv2.magnitude(grad_x, grad_y)
     afterSobel_uint8 = cv2.convertScaleAbs(afterSobel)
     afterSobel_uint8_blurred = cv2.GaussianBlur(afterSobel_uint8, (35, 35), 1)
+    #edge = cv2.GaussianBlur(afterSobel_uint8, (15, 15), 1)
 
     #use edge enhancement method
     _, edges_thresh = cv2.threshold(afterSobel_uint8_blurred, 125, 255, cv2.THRESH_BINARY)
@@ -51,12 +54,28 @@ for file in png_files:
     edges_dilated = cv2.dilate(edges_thresh, kernel, iterations=1)
     edge = cv2.erode(edges_dilated, kernel, iterations=1)
 
+    
+
     row_of_pixels = edge[y, :]
     x_coordinates = np.where(row_of_pixels >= 120)[0]
+
+    
+
+    
+    loop = True
+
+    while loop:
+        if(len(x_coordinates) > 6):
+            edge = cv2.erode(edge, kernel, iterations=1)
+            row_of_pixels = edge[y, :]
+            x_coordinates = np.where(row_of_pixels >= 120)[0]
+        else:
+           loop = False
 
     # if there is no line detected, extend each white area 1 pixel up/down until detects line
     kernel3 = np.array([[1], [1], [1]])
     loop = True
+
     while loop:
       if(len(x_coordinates) > 0):
         loop = False
@@ -64,6 +83,11 @@ for file in png_files:
         edge = cv2.filter2D(edge, -1, kernel3)
         row_of_pixels = edge[y, :]
         x_coordinates = np.where(row_of_pixels >= 120)[0]
+
+    
+
+    
+    
 
     if(len(x_coordinates) > 0):
 
