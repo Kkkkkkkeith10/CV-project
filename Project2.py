@@ -20,7 +20,6 @@ for file in png_files:
     y = 70
 
     img = cv2.imread(file)
-    y1, x1 = img.shape[:2]
     img = img[0:140, 850:1150]
     save_file = os.path.join(processedDir, os.path.basename(file))
     imterim_file = os.path.join(imterimDir, os.path.basename(file))
